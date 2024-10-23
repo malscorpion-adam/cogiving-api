@@ -1,0 +1,32 @@
+zakat-management-api/
+├── config/
+│   └── database.js        # Database connection setup
+├── controllers/
+│   ├── applicationController.js  # Controller for application-related actions
+│   ├── authController.js         # Controller for authentication (login/logout)
+│   └── documentController.js     # Controller for handling document uploads and retrieval
+├── middlewares/
+│   └── authMiddleware.js   # Middleware for handling authentication and authorization
+├── models/
+│   ├── Application.js      # Model for application data
+│   ├── Donee.js            # Model for donee data
+│   ├── Income.js           # Model for income data
+│   ├── Expense.js          # Model for expense data
+│   └── ...                 # Other models for debt, assets, addresses, etc.
+├── routes/
+│   ├── applicationRoutes.js  # Routes for application-related actions
+│   ├── authRoutes.js         # Routes for authentication (login/logout)
+│   ├── documentRoutes.js     # Routes for handling document uploads and retrieval
+│   └── verificationRoutes.js # Routes for verifications
+├── services/
+│   ├── applicationService.js # Business logic for handling application updates, creates
+│   ├── authService.js        # Business logic for handling authentication (login/logout)
+│   ├── documentService.js    # Business logic for document upload and retrieval
+│   └── ...                   # Other services
+├── utils/
+│   ├── validators.js         # Utility functions for data validation
+│   └── logger.js             # Logger configuration
+├── .env                      # Environment variables for DB, JWT secrets, etc.
+├── app.js                    # Main entry point of the application
+├── package.json              # Node.js package file
+└── README.md                 # Project documentation

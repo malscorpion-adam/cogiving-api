@@ -1,0 +1,425 @@
+
+openapi: 3.0.0
+info:
+  title: Zakat Management API
+  version: "1.0.0"
+  description: API for managing Zakat applications, committee reviews, documents, verifications, and user authentication.
+
+servers:
+  - url: http://localhost:8080
+    description: Local server
+
+paths:
+  /applications:
+    post:
+      summary: Create a new application draft
+      tags:
+        - Applications
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DoneeApplication'
+      responses:
+        '201':
+          description: Application created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationResponse'
+
+  /applications/{applicationId}:
+    get:
+      summary: Get application by ID
+      tags:
+        - Applications
+      parameters:
+        - name: applicationId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Application details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DoneeApplication'
+
+    put:
+      summary: Update an application draft
+      tags:
+        - Applications
+      parameters:
+        - name: applicationId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DoneeApplication'
+      responses:
+        '200':
+          description: Application updated successfully
+
+  /applications/{applicationId}/submit:
+    post:
+      summary: Submit an application
+      tags:
+        - Applications
+      parameters:
+        - name: applicationId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Application submitted successfully
+
+  /applications/pool:
+    get:
+      summary: Get applications from the central pool
+      tags:
+        - Committee
+      responses:
+        '200':
+          description: List of applications in the central pool
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DoneeApplication'
+
+  /applications/{applicationId}/claim:
+    post:
+      summary: Claim an application for committee review
+      tags:
+        - Committee
+      parameters:
+        - name: applicationId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Application claimed successfully
+
+  /applications/{applicationId}/approve:
+    post:
+      summary: Approve an application
+      tags:
+        - Committee
+      parameters:
+        - name: applicationId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                approvalReason:
+                  type: string
+      responses:
+        '200':
+          description: Application approved successfully
+
+  /applications/{applicationId}/reject:
+    post:
+      summary: Reject an application
+      tags:
+        - Committee
+      parameters:
+        - name: applicationId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                rejectionReason:
+                  type: string
+      responses:
+        '200':
+          description: Application rejected successfully
+
+  /applications/{applicationId}/send-back:
+    post:
+      summary: Send an application back to DE for corrections
+      tags:
+        - Committee
+      parameters:
+        - name: applicationId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                correctionNotes:
+                  type: string
+      responses:
+        '200':
+          description: Application sent back for corrections
+
+  /documents/upload:
+    post:
+      summary: Upload documents for an application
+      tags:
+        - Documents
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                file_type:
+                  type: string
+                  example: "id_card"
+                applicationId:
+                  type: integer
+                  example: 123
+      responses:
+        '200':
+          description: Document uploaded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentResponse'
+
+  /documents/{documentId}:
+    get:
+      summary: View documents for an application
+      tags:
+        - Documents
+      parameters:
+        - name: documentId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Document details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentResponse'
+
+  /verifications/{applicationId}/run:
+    post:
+      summary: Run automatic verification on an application
+      tags:
+        - Verification
+      parameters:
+        - name: applicationId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Verification completed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  verificationResults:
+                    type: object
+                    properties:
+                      idCheck:
+                        type: string
+                        example: "passed"
+                      incomeCheck:
+                        type: string
+                        example: "failed"
+
+  /auth/login:
+    post:
+      summary: Authenticate user and generate JWT token
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: "admin"
+                password:
+                  type: string
+                  example: "admin123"
+      responses:
+        '200':
+          description: Authentication successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+
+  /auth/logout:
+    post:
+      summary: Logout user and invalidate token
+      tags:
+        - Authentication
+      responses:
+        '200':
+          description: Logout successful
+
+components:
+  schemas:
+    DoneeApplication:
+      type: object
+      properties:
+        applicationId:
+          type: integer
+          description: Unique identifier for the application
+        personalInformation:
+          type: array
+          items:
+            type: object
+            properties:
+              doneeId:
+                type: integer
+              type:
+                type: string
+                description: Role of the person (donee, sibling, child)
+              applicationId:
+                type: integer
+              firstName:
+                type: string
+              lastName:
+                type: string
+              dob:
+                type: string
+                format: date
+              gender:
+                type: string
+              contactNumber:
+                type: string
+              email:
+                type: string
+              nationalId:
+                type: string
+              addresses:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      example: homeAddress
+                    street:
+                      type: string
+                    city:
+                      type: string
+                    state:
+                      type: string
+                    postalCode:
+                      type: string
+                    country:
+                      type: string
+              doneeIncome:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    incomeId:
+                      type: integer
+                    amount:
+                      type: number
+                      format: double
+              doneeDept:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    deptId:
+                      type: integer
+                    amount:
+                      type: number
+                      format: double
+              doneeExpense:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    expenseId:
+                      type: integer
+                    amount:
+                      type: number
+                      format: double
+              doneeAsset:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    assetId:
+                      type: integer
+                    description:
+                      type: string
+                    value:
+                      type: number
+                      format: double
+              doneeHealth:
+                type: object
+                properties:
+                  healthId:
+                    type: integer
+                  healthStatus:
+                    type: string
+
+    ApplicationResponse:
+      type: object
+      properties:
+        applicationId:
+          type: integer
+        status:
+          type: string
+          enum: [draft, submitted, approved, rejected, canceled, sent_back]
+
+    DocumentResponse:
+      type: object
+      properties:
+        documentId:
+          type: integer
+        fileType:
+          type: string
+        status:
+          type: string
+          example: "uploaded"

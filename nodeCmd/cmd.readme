@@ -1,0 +1,4 @@
+npm init -y
+npm install
+npm install express mysql2 multer body-parser dotenv
+node app.js

@@ -1,0 +1,15 @@
+zakat-management-api/
+│
+├── app.js                  # Main application file
+├── config/
+│   └── database.js        # Database connection setup
+├── package.json            # Node.js project metadata and dependencies
+├── package-lock.json       # NPM lock file (auto-generated)
+├── README.md               # Project readme (optional)
+│
+├── routes/                 # Directory for route files
+│   ├── applicationRoutes.js # Routes for application operations
+
+│
+└── controllers/            # Directory for controllers (business logic)
+    ├── applicationController.js # Controller for application-related operations
